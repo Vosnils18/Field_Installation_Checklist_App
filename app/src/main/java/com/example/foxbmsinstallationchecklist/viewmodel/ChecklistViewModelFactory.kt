@@ -8,7 +8,7 @@ class ChecklistViewModelFactory : ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(ChecklistViewModel::class.java)) {
-            return ChecklistViewModel() as T
+            return com.example.foxbmsinstallationchecklist.ChecklistViewModel() as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

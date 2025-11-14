@@ -16,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 
@@ -24,26 +25,32 @@ fun FoxTextField(
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
-    keyboardType: KeyboardType = KeyboardType.Text,
+    modifier: Modifier = Modifier,
+    keyboardType: KeyboardType = KeyboardType.Text,  // Default value
+    visualTransformation: VisualTransformation = VisualTransformation.None,
     isError: Boolean = false,
-    modifier: Modifier = Modifier
+    errorMessage: String? = null
 ) {
-    OutlinedTextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = { Text(label) },
-        keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
-        isError = isError,
-        modifier = modifier.fillMaxWidth(),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedBorderColor = FoxOrange,
-            unfocusedBorderColor = FoxMediumGray,
-            errorBorderColor = FoxErrorRed,
-            focusedLabelColor = FoxOrange,
-            unfocusedLabelColor = FoxMediumGray
-        ),
-        shape = RoundedCornerShape(8.dp)
-    )
+    Column(modifier = modifier) {
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            label = { Text(label) },
+            keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
+            visualTransformation = visualTransformation,
+            isError = isError,
+            modifier = modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(8.dp)
+        )
+        if (isError && errorMessage != null) {
+            Text(
+                text = errorMessage,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.labelSmall,
+                modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+            )
+        }
+    }
 }
 
 @Composable
@@ -56,9 +63,7 @@ fun FoxButton(
 ) {
     Button(
         onClick = onClick,
-        modifier = modifier
-            .fillMaxWidth()
-            .height(50.dp),
+        modifier = modifier,
         enabled = enabled,
         colors = ButtonDefaults.buttonColors(
             containerColor = color,

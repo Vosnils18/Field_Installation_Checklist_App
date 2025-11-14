@@ -10,7 +10,6 @@ import androidx.compose.ui.unit.dp
 import com.example.foxbmsinstallationchecklist.ui.theme.FoxTextField
 import com.example.foxbmsinstallationchecklist.viewmodel.ChecklistViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DimensionsScreen(
     viewModel: ChecklistViewModel,
@@ -18,9 +17,11 @@ fun DimensionsScreen(
     onBack: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    // Validation state
     var isValid by remember { mutableStateOf(false) }
 
-    // Check if all required fields are filled
+    // Check validation whenever state changes
     LaunchedEffect(uiState.measurements) {
         isValid = with(uiState.measurements) {
             width.isNotBlank() && height.isNotBlank() && depth.isNotBlank()
@@ -38,7 +39,7 @@ fun DimensionsScreen(
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Text(
-                "Enter dimensions and specifications",
+                "Enter dimensions",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.onSurface
             )
@@ -69,40 +70,6 @@ fun DimensionsScreen(
                 modifier = Modifier.fillMaxWidth(),
                 isError = uiState.measurements.depth.isBlank()
             )
-
-            // Dropdown for cabinet type
-            var expandedCabinetType by remember { mutableStateOf(false) }
-            val cabinetTypes = listOf("Wall-mounted", "Floor-standing", "Custom")
-
-            ExposedDropdownMenuBox(
-                expanded = expandedCabinetType,
-                onExpandedChange = { expandedCabinetType = !expandedCabinetType },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                OutlinedTextField(
-                    value = uiState.measurements.cabinetType.ifBlank { "Select Cabinet Type" },
-                    onValueChange = {},
-                    readOnly = true,
-                    label = { Text("Cabinet Type") },
-                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedCabinetType) },
-                    modifier = Modifier.fillMaxWidth()
-                )
-
-                ExposedDropdownMenu(
-                    expanded = expandedCabinetType,
-                    onDismissRequest = { expandedCabinetType = false }
-                ) {
-                    cabinetTypes.forEach { type ->
-                        DropdownMenuItem(
-                            text = { Text(type) },
-                            onClick = {
-                                viewModel.updateCabinetType(type)
-                                expandedCabinetType = false
-                            }
-                        )
-                    }
-                }
-            }
         }
     }
 }

@@ -1,21 +1,17 @@
 // navigation/NavGraph.kt
 package com.example.foxbmsinstallationchecklist.navigation
 
-import androidx.compose.animation.AnimatedContentTransitionScope
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.foxbmsinstallationchecklist.ui.screens.DBSettingsScreen
 import com.example.foxbmsinstallationchecklist.ui.screens.DimensionsScreen
 import com.example.foxbmsinstallationchecklist.ui.screens.PhotoDocumentationScreen
 import com.example.foxbmsinstallationchecklist.ui.screens.ProjectInfoScreen
 import com.example.foxbmsinstallationchecklist.ui.screens.ReviewScreen
+import com.example.foxbmsinstallationchecklist.utils.SecureCredentialsManager
 import com.example.foxbmsinstallationchecklist.viewmodel.ChecklistViewModel
 
 sealed class Screen(val route: String) {
@@ -23,6 +19,7 @@ sealed class Screen(val route: String) {
     object Dimensions : Screen("dimensions")
     object PhotoDocumentation : Screen("photoDocumentation")
     object Review : Screen("review")
+    object DBSettings : Screen("dbSettings")
 }
 
 @Composable
@@ -30,46 +27,20 @@ fun NavGraph(
     navController: NavHostController = rememberNavController(),
     viewModel: ChecklistViewModel
 ) {
+    val credentialsManager = SecureCredentialsManager(androidx.compose.ui.platform.LocalContext.current)
+
     NavHost(
         navController = navController,
         startDestination = Screen.ProjectInfo.route
     ) {
-        composable(
-            route = Screen.ProjectInfo.route,
-            enterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { 1000 },
-                    animationSpec = tween(300)
-                ) + fadeIn(animationSpec = tween(300))
-            },
-            exitTransition = {
-                slideOutHorizontally(
-                    targetOffsetX = { -1000 },
-                    animationSpec = tween(300)
-                ) + fadeOut(animationSpec = tween(300))
-            }
-        ) {
+        composable(Screen.ProjectInfo.route) {
             ProjectInfoScreen(
                 viewModel = viewModel,
                 onNext = { navController.navigate(Screen.Dimensions.route) }
             )
         }
 
-        composable(
-            route = Screen.Dimensions.route,
-            enterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { 1000 },
-                    animationSpec = tween(300)
-                ) + fadeIn(animationSpec = tween(300))
-            },
-            exitTransition = {
-                slideOutHorizontally(
-                    targetOffsetX = { -1000 },
-                    animationSpec = tween(300)
-                ) + fadeOut(animationSpec = tween(300))
-            }
-        ) {
+        composable(Screen.Dimensions.route) {
             DimensionsScreen(
                 viewModel = viewModel,
                 onNext = { navController.navigate(Screen.PhotoDocumentation.route) },
@@ -77,21 +48,7 @@ fun NavGraph(
             )
         }
 
-        composable(
-            route = Screen.PhotoDocumentation.route,
-            enterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { 1000 },
-                    animationSpec = tween(300)
-                ) + fadeIn(animationSpec = tween(300))
-            },
-            exitTransition = {
-                slideOutHorizontally(
-                    targetOffsetX = { -1000 },
-                    animationSpec = tween(300)
-                ) + fadeOut(animationSpec = tween(300))
-            }
-        ) {
+        composable(Screen.PhotoDocumentation.route) {
             PhotoDocumentationScreen(
                 viewModel = viewModel,
                 onNext = { navController.navigate(Screen.Review.route) },
@@ -99,25 +56,19 @@ fun NavGraph(
             )
         }
 
-        composable(
-            route = Screen.Review.route,
-            enterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { 1000 },
-                    animationSpec = tween(300)
-                ) + fadeIn(animationSpec = tween(300))
-            },
-            exitTransition = {
-                slideOutHorizontally(
-                    targetOffsetX = { -1000 },
-                    animationSpec = tween(300)
-                ) + fadeOut(animationSpec = tween(300))
-            }
-        ) {
+        composable(Screen.Review.route) {
             ReviewScreen(
                 viewModel = viewModel,
                 onBack = { navController.popBackStack() },
-                onSubmit = { /* Handle submission */ }
+                onSubmit = { /* Handle successful submission */ },
+                onOpenDBSettings = { navController.navigate(Screen.DBSettings.route) }
+            )
+        }
+
+        composable(Screen.DBSettings.route) {
+            DBSettingsScreen(
+                credentialsManager = credentialsManager,
+                onSave = { navController.popBackStack() }
             )
         }
     }

@@ -1,10 +1,16 @@
 package com.example.foxbmsinstallationchecklist.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.foxbmsinstallationchecklist.InstallationData
+import com.example.foxbmsinstallationchecklist.database.MariaDBHelper
+import com.example.foxbmsinstallationchecklist.utils.SecureCredentialsManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 data class ProjectInfo(
     val name: String = "",
@@ -30,9 +36,58 @@ data class InstallationData(
     val photos: Map<String, String> = emptyMap()
 )
 
-class ChecklistViewModel : ViewModel() {
+class ChecklistViewModel(private val context: Context) : ViewModel() {
+    private val credentialsManager = SecureCredentialsManager(context)
     private val _uiState = MutableStateFlow(InstallationData())
     val uiState: StateFlow<InstallationData> = _uiState.asStateFlow()
+
+    fun hasCredentials(): Boolean = credentialsManager.hasCredentials()
+
+    fun getDatabaseHelper(): MariaDBHelper? {
+        if (!hasCredentials()) return null
+
+        return MariaDBHelper(
+            host = credentialsManager.getHost(),
+            port = credentialsManager.getPort(),
+            databaseName = credentialsManager.getDatabaseName(),
+            username = credentialsManager.getUsername(),
+            password = credentialsManager.getPassword()
+        )
+    }
+
+    fun saveCredentials(host: String, port: Int, dbName: String, username: String, password: String) {
+        credentialsManager.saveCredentials(host, port, dbName, username, password)
+    }
+
+    fun submitData(onComplete: (Boolean) -> Unit) {
+        if (!hasCredentials()) {
+            onComplete(false)
+            return
+        }
+
+        viewModelScope.launch {
+            val dbHelper = getDatabaseHelper()
+            if (dbHelper == null) {
+                onComplete(false)
+                return@launch
+            }
+
+            try {
+                val connected = dbHelper.connect()
+                if (!connected) {
+                    onComplete(false)
+                    return@launch
+                }
+
+                val success = dbHelper.insertInstallationData(uiState.value)
+                dbHelper.disconnect()
+                onComplete(success)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                onComplete(false)
+            }
+        }
+    }
 
     // Project Info Updates
     fun updateProjectName(name: String) {

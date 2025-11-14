@@ -22,7 +22,13 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    val viewModel: ChecklistViewModel = viewModel()
+                    val viewModel: ChecklistViewModel = viewModel(
+                        factory = object : androidx.lifecycle.ViewModelProvider.Factory {
+                            override fun <T : androidx.lifecycle.ViewModel> create(modelClass: Class<T>): T {
+                                return ChecklistViewModel(applicationContext) as T
+                            }
+                        }
+                    )
                     NavGraph(viewModel = viewModel)
                 }
             }

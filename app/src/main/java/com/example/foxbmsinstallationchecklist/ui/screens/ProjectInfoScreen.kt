@@ -16,12 +16,14 @@ fun ProjectInfoScreen(
     onNext: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    // Validation state
     var isValid by remember { mutableStateOf(false) }
 
-    // Check if all required fields are filled
+    // Check validation whenever state changes
     LaunchedEffect(uiState.projectInfo) {
         isValid = with(uiState.projectInfo) {
-            name.isNotBlank() && location.isNotBlank() && contactPerson.isNotBlank()
+            name.isNotBlank() && location.isNotBlank() && contactPerson.isBlank().not()
         }
     }
 
