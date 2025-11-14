@@ -1,3 +1,4 @@
+// ui/theme/Shapes.kt
 package com.example.foxbmsinstallationchecklist.ui.theme
 
 import androidx.compose.foundation.shape.RoundedCornerShape

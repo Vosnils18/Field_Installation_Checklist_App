@@ -9,7 +9,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.example.foxbmsinstallationchecklist.R
 
-// Define the font family using the actual resource IDs
 val Roboto = FontFamily(
     Font(R.font.robotoregular, FontWeight.Normal),
     Font(R.font.robotomedium, FontWeight.Medium),
@@ -51,12 +50,5 @@ val Typography = Typography(
         fontSize = 14.sp,
         lineHeight = 20.sp,
         letterSpacing = 0.1.sp
-    ),
-    bodyMedium = TextStyle(
-        fontFamily = Roboto,
-        fontWeight = FontWeight.Normal,
-        fontSize = 14.sp,
-        lineHeight = 20.sp,
-        letterSpacing = 0.25.sp
     )
 )

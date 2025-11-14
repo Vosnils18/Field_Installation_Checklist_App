@@ -1,11 +1,6 @@
 // ui/theme/Components.kt
 package com.example.foxbmsinstallationchecklist.ui.theme
 
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -22,7 +17,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import coil.compose.AsyncImage
 
 @Composable
@@ -40,9 +34,7 @@ fun FoxTextField(
         label = { Text(label) },
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType),
         isError = isError,
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(MaterialTheme.shapes.medium),
+        modifier = modifier.fillMaxWidth(),
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = FoxOrange,
             unfocusedBorderColor = FoxMediumGray,
@@ -50,7 +42,7 @@ fun FoxTextField(
             focusedLabelColor = FoxOrange,
             unfocusedLabelColor = FoxMediumGray
         ),
-        shape = MaterialTheme.shapes.medium
+        shape = RoundedCornerShape(8.dp)
     )
 }
 
@@ -76,7 +68,7 @@ fun FoxButton(
         ),
         shape = RoundedCornerShape(8.dp)
     ) {
-        Text(text, style = MaterialTheme.typography.labelMedium)
+        Text(text)
     }
 }
 
@@ -127,25 +119,6 @@ fun FoxTopAppBar(
 }
 
 @Composable
-fun FoxSnackbarHost(
-    snackbarHostState: SnackbarHostState,
-    modifier: Modifier = Modifier
-) {
-    SnackbarHost(
-        hostState = snackbarHostState,
-        modifier = modifier,
-        snackbar = { snackbarData ->
-            Snackbar(
-                snackbarData = snackbarData,
-                containerColor = FoxDarkGray,
-                contentColor = Color.White,
-                shape = RoundedCornerShape(8.dp)
-            )
-        }
-    )
-}
-
-@Composable
 fun FoxPhotoPreview(photos: Map<String, String>) {
     if (photos.isNotEmpty()) {
         Column {
@@ -180,45 +153,4 @@ fun FoxPhotoPreview(photos: Map<String, String>) {
             }
         }
     }
-}
-
-
-@Composable
-fun FoxSuccessMessage(
-    message: String,
-    onDismiss: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Success", color = FoxSuccessGreen) },
-        text = { Text(message) },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text("OK")
-            }
-        },
-        containerColor = MaterialTheme.colorScheme.surface,
-        titleContentColor = MaterialTheme.colorScheme.onSurface,
-        textContentColor = MaterialTheme.colorScheme.onSurface
-    )
-}
-
-@Composable
-fun FoxErrorMessage(
-    message: String,
-    onDismiss: () -> Unit
-) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Error", color = FoxErrorRed) },
-        text = { Text(message) },
-        confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text("OK")
-            }
-        },
-        containerColor = MaterialTheme.colorScheme.surface,
-        titleContentColor = MaterialTheme.colorScheme.onSurface,
-        textContentColor = MaterialTheme.colorScheme.onSurface
-    )
 }

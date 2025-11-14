@@ -1,8 +1,5 @@
 package com.example.foxbmsinstallationchecklist.viewmodel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -33,7 +30,7 @@ data class InstallationData(
     val photos: Map<String, String> = emptyMap()
 )
 
-class ChecklistViewModel {
+class ChecklistViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(InstallationData())
     val uiState: StateFlow<InstallationData> = _uiState.asStateFlow()
 

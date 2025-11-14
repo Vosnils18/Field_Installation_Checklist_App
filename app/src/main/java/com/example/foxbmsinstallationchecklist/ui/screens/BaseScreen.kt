@@ -7,10 +7,9 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.foxbmsinstallationchecklist.ui.theme.FoxColors
+import com.example.foxbmsinstallationchecklist.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,7 +40,7 @@ fun BaseScreen(
                             Icon(
                                 Icons.Filled.ArrowForward,
                                 contentDescription = "Next",
-                                tint = FoxColors.Orange
+                                tint = FoxOrange
                             )
                         }
                     }
