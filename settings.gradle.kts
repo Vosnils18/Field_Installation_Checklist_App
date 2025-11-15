@@ -19,5 +19,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "FoxBMS Installation Checklist"
+rootProject.name = "FieldInstallationChecklistApp"
 include(":app")
