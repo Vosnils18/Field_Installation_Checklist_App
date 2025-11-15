@@ -1,22 +1,20 @@
 plugins {
     id("com.android.application")
-    id("org.jetbrains.kotlin.android")
-    id("kotlin-kapt")
+    id("org.jetbrains.kotlin.android") version "1.9.20"
     id("com.google.dagger.hilt.android")
-    id("com.google.devtools.ksp")
+    id("com.google.devtools.ksp") version "1.9.20-1.0.14"
 }
 
 android {
-    namespace = "nl.buas.fieldinstallationchecklistapp"
+    namespace = "eu.foxbms.installationchecklist"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "nl.buas.fieldinstallationchecklistapp"
+        applicationId = "eu.foxbms.installationchecklist"
         minSdk = 24
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -41,17 +39,21 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.3"
+        kotlinCompilerExtensionVersion = "1.5.4"
     }
 
     packagingOptions {
         resources {
-            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/AL2.0"
+            excludes += "/META-INF/LGPL2.1"
         }
     }
 }
 
 dependencies {
+    // Kotlin stdlib (ensure it matches the Kotlin plugin version)
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.20")
+
     // Core dependencies
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.2")
@@ -69,7 +71,7 @@ dependencies {
 
     // Room Database
     implementation("androidx.room:room-runtime:2.6.0")
-    kapt("androidx.room:room-compiler:2.6.0")
+    ksp("androidx.room:room-compiler:2.6.0") // ksp for Room
     implementation("androidx.room:room-ktx:2.6.0")
 
     // CameraX
@@ -102,7 +104,7 @@ dependencies {
 
     // Hilt
     implementation("com.google.dagger:hilt-android:2.48")
-    kapt("com.google.dagger:hilt-compiler:2.48")
+    ksp("com.google.dagger:hilt-compiler:2.48") // ksp for Hilt
 
     // Security
     implementation("androidx.security:security-crypto:1.1.0-alpha06")

@@ -1,7 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">FoxBMS Installation Checklist</string>
-    <string-array name="cable_entry_options">
-        <item>Bottom (Onder)</item>
-        <item>Top (Boven)</item>
-    </string-array>
+    <string name="app_name">Fox BMS Installation Checklist</string>
 </resources>
