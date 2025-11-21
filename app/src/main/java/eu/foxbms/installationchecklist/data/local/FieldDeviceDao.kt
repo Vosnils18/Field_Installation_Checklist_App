@@ -2,24 +2,19 @@ package eu.foxbms.installationchecklist.data.local
 
 import androidx.room.Dao
 import androidx.room.Insert
+import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface FieldDeviceDao {
-    @Insert
-    suspend fun insertFieldDevice(fieldDevice: FieldDeviceEntity)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(fieldDevice: FieldDevice): Long
 
     @Update
-    suspend fun updateFieldDevice(fieldDevice: FieldDeviceEntity)
-
-    @Query("DELETE FROM field_devices WHERE id = :id")
-    suspend fun deleteFieldDevice(id: Int)
+    suspend fun update(fieldDevice: FieldDevice)
 
     @Query("SELECT * FROM field_devices WHERE cabinetId = :cabinetId")
-    fun getFieldDevicesByCabinetId(cabinetId: Int): Flow<List<FieldDeviceEntity>>
-
-    @Query("SELECT * FROM field_devices WHERE id = :id")
-    fun getFieldDeviceById(id: Int): Flow<FieldDeviceEntity?>
+    fun getFieldDevicesForCabinet(cabinetId: Long): Flow<List<FieldDevice>>
 }

@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import eu.foxbms.installationchecklist.data.local.FieldDeviceEntity
+import eu.foxbms.installationchecklist.data.local.FieldDevice
 import eu.foxbms.installationchecklist.data.repository.FieldDeviceRepository
 import javax.inject.Inject
 
@@ -15,11 +15,11 @@ class FieldDeviceViewModel @Inject constructor(
     fun getFieldDevicesByCabinetId(cabinetId: Int) =
         fieldDeviceRepository.getFieldDevicesByCabinetId(cabinetId)
 
-    fun insertFieldDevice(fieldDevice: FieldDeviceEntity) = viewModelScope.launch {
+    fun insertFieldDevice(fieldDevice: FieldDevice) = viewModelScope.launch {
         fieldDeviceRepository.insertFieldDevice(fieldDevice)
     }
 
-    fun updateFieldDevice(fieldDevice: FieldDeviceEntity) = viewModelScope.launch {
+    fun updateFieldDevice(fieldDevice: FieldDevice) = viewModelScope.launch {
         fieldDeviceRepository.updateFieldDevice(fieldDevice)
     }
 

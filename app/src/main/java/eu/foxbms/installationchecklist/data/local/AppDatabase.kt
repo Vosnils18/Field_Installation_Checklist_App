@@ -5,9 +5,9 @@ import androidx.room.RoomDatabase
 
 @Database(
     entities = [
-        ProjectEntity::class,
-        CabinetEntity::class,
-        FieldDeviceEntity::class,
+        Project::class,
+        Cabinet::class,
+        FieldDevice::class,
         PhotoEntity::class
     ],
     version = 1,

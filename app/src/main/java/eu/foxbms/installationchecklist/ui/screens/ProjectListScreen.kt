@@ -16,7 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import eu.foxbms.installationchecklist.data.local.ProjectEntity
+import eu.foxbms.installationchecklist.data.local.Project
 import eu.foxbms.installationchecklist.viewmodel.ProjectViewModel
 
 @Composable
@@ -47,6 +47,6 @@ fun ProjectListScreen(navController: NavController, viewModel: ProjectViewModel)
 }
 
 @Composable
-fun ProjectItem(project: ProjectEntity, onClick: () -> Unit) {
+fun ProjectItem(project: Project, onClick: () -> Unit) {
     TODO("Not yet implemented")
 }
