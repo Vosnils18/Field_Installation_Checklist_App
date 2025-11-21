@@ -20,4 +20,7 @@ interface CabinetDao {
 
     @Query("SELECT * FROM cabinets WHERE id = :cabinetId")
     fun getCabinet(cabinetId: Long): Flow<Cabinet?>
+
+    @Query("DELETE FROM cabinets WHERE id = :id")
+    suspend fun delete(id: Long)
 }

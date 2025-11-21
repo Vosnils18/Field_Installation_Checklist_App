@@ -17,7 +17,11 @@ class CabinetRepository(private val cabinetDao: CabinetDao) {
         return cabinetDao.getCabinetsForProject(projectId)
     }
 
-    fun getCabinet(cabinetId: Long): Flow<Cabinet?> {
+    fun getCabinetById(cabinetId: Long): Flow<Cabinet?> {
         return cabinetDao.getCabinet(cabinetId)
+    }
+
+    suspend fun deleteCabinet(id: Long) {
+        cabinetDao.delete(id)
     }
 }

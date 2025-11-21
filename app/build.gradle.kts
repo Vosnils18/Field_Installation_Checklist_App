@@ -53,6 +53,7 @@ android {
 dependencies {
     // Kotlin stdlib (ensure it matches the Kotlin plugin version)
     implementation("org.jetbrains.kotlin:kotlin-stdlib:1.9.20")
+    implementation("androidx.hilt:hilt-navigation-compose:1.1.0")
 
     // Core dependencies
     implementation("androidx.core:core-ktx:1.12.0")

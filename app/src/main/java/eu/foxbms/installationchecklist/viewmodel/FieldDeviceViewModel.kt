@@ -2,12 +2,18 @@ package eu.foxbms.installationchecklist.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import eu.foxbms.installationchecklist.data.local.FieldDevice
 import eu.foxbms.installationchecklist.data.repository.FieldDeviceRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class FieldDeviceViewModel(private val fieldDeviceRepository: FieldDeviceRepository) : ViewModel() {
+@HiltViewModel
+class FieldDeviceViewModel @Inject constructor(
+    private val fieldDeviceRepository: FieldDeviceRepository
+) : ViewModel() {
+
     fun insertFieldDevice(fieldDevice: FieldDevice) {
         viewModelScope.launch {
             fieldDeviceRepository.insertFieldDevice(fieldDevice)
