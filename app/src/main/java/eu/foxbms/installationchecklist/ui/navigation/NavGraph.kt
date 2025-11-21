@@ -12,6 +12,7 @@ import eu.foxbms.installationchecklist.ui.screens.CabinetListScreen
 import eu.foxbms.installationchecklist.ui.screens.CabinetSpecsScreen
 import eu.foxbms.installationchecklist.ui.screens.ProjectListScreen
 import eu.foxbms.installationchecklist.viewmodel.CabinetViewModel
+import eu.foxbms.installationchecklist.viewmodel.PhotoViewModel
 import eu.foxbms.installationchecklist.viewmodel.ProjectViewModel
 
 @Composable
@@ -58,12 +59,14 @@ fun NavGraph() {
             val projectId = backStackEntry.arguments?.getLong("projectId") ?: 0L
             val cabinetIdStr = backStackEntry.arguments?.getString("cabinetId") ?: "new"
             val cabinetId = if (cabinetIdStr == "new") null else cabinetIdStr.toLongOrNull()
-            val viewModel: CabinetViewModel = hiltViewModel()
+            val cabinetViewModel: CabinetViewModel = hiltViewModel()
+            val photoViewModel: PhotoViewModel = hiltViewModel()
             CabinetSpecsScreen(
                 navController = navController,
                 projectId = projectId,
                 cabinetId = cabinetId,
-                viewModel = viewModel
+                viewModel = cabinetViewModel,
+                photoViewModel = photoViewModel
             )
         }
     }

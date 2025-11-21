@@ -1,5 +1,27 @@
 package eu.foxbms.installationchecklist.ui.screens
 
+import android.Manifest
+import android.content.Context
+import android.net.Uri
+import android.util.Log
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.FileProvider
+import androidx.hilt.navigation.compose.hiltViewModel
+import coil.compose.AsyncImage
+import eu.foxbms.installationchecklist.data.local.PhotoEntity
+import eu.foxbms.installationchecklist.viewmodel.PhotoViewModel
+import java.io.File
+import androidx.compose.runtime.collectAsState
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -44,7 +66,13 @@ import eu.foxbms.installationchecklist.viewmodel.CabinetViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CabinetSpecsScreen(navController: NavController, projectId: Long, cabinetId: Long?, viewModel: CabinetViewModel) {
+fun CabinetSpecsScreen(
+    navController: NavController,
+    projectId: Long,
+    cabinetId: Long?,
+    viewModel: CabinetViewModel,
+    photoViewModel: PhotoViewModel
+) {
     var currentStep by remember { mutableIntStateOf(1) }
     val totalSteps = 8
 
@@ -82,9 +110,6 @@ fun CabinetSpecsScreen(navController: NavController, projectId: Long, cabinetId:
     var cabinetAccessories by remember { mutableStateOf("") }
     var cabinetAccessoriesOther by remember { mutableStateOf("") }
     var finalComments by remember { mutableStateOf("") }
-    var photosTakenOutside by remember { mutableStateOf(false) }
-    var photosTakenInside by remember { mutableStateOf(false) }
-    var photoOfCabinetSent by remember { mutableStateOf(false) }
 
     LaunchedEffect(cabinetId) {
         cabinetId?.let { id ->
@@ -114,9 +139,6 @@ fun CabinetSpecsScreen(navController: NavController, projectId: Long, cabinetId:
                     cableEntryType = it.cableEntryType.split(" - ").firstOrNull() ?: ""
                     cabinetAccessories = it.cabinetAccessories
                     finalComments = it.finalComments
-                    photosTakenOutside = it.photosTakenOutside
-                    photosTakenInside = it.photosTakenInside
-                    photoOfCabinetSent = it.photoOfCabinetSent
                 }
             }
         }
@@ -187,10 +209,7 @@ fun CabinetSpecsScreen(navController: NavController, projectId: Long, cabinetId:
                         cabinetAccessories, cabinetAccessoriesOther, finalComments,
                         { cabinetAccessories = it }, { cabinetAccessoriesOther = it }, { finalComments = it }
                     )
-                    8 -> PhotosStep(
-                        photosTakenOutside, photosTakenInside, photoOfCabinetSent,
-                        { photosTakenOutside = it }, { photosTakenInside = it }, { photoOfCabinetSent = it }
-                    )
+                    8 -> PhotosStep(cabinetId, photoViewModel)
                 }
             }
 
@@ -254,9 +273,6 @@ fun CabinetSpecsScreen(navController: NavController, projectId: Long, cabinetId:
                             freeSpaceLeft = freeSpaceLeft.toDoubleOrNull() ?: 0.0,
                             freeSpaceTop = freeSpaceTop.toDoubleOrNull() ?: 0.0,
                             freeSpaceBottom = freeSpaceBottom.toDoubleOrNull() ?: 0.0,
-                            photosTakenOutside = photosTakenOutside,
-                            photosTakenInside = photosTakenInside,
-                            photoOfCabinetSent = photoOfCabinetSent
                         )
                         if (cabinetId == null) {
                             viewModel.insertCabinet(cabinet)
@@ -587,28 +603,90 @@ fun CableEntryStep(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AccessoriesNotesStep(
-    cabinetAccessories: String, cabinetAccessoriesOther: String, finalComments: String,
+    cabinetAccessories: String,
+    cabinetAccessoriesOther: String,
+    finalComments: String,
     onCabinetAccessoriesChange: (String) -> Unit,
     onCabinetAccessoriesOtherChange: (String) -> Unit,
     onFinalCommentsChange: (String) -> Unit
 ) {
     Text("Accessories & Notes", style = MaterialTheme.typography.headlineSmall)
 
-    DropdownField(
-        label = "Cabinet Accessories",
-        options = listOf("Wire Numbering", "Forced Ventilation", "Natural Ventilation", "Cabinet Heater",
-            "Thermostat", "Hygrostat", "Cabinet Light", "Cable Connection Rail", "Lifting Lungs", "Door Stay", "Other"),
-        selectedValue = cabinetAccessories,
-        onValueChange = onCabinetAccessoriesChange
+    val allOptions = listOf(
+        "Wire Numbering", "Forced Ventilation", "Natural Ventilation", "Cabinet Heater",
+        "Thermostat", "Hygrostat", "Cabinet Light", "Cable Connection Rail",
+        "Lifting Lungs", "Door Stay"
     )
 
-    if (cabinetAccessories == "Other") {
+    val selectedAccessories = remember {
+        mutableStateListOf<String>().apply {
+            if (cabinetAccessories.isNotBlank()) {
+                addAll(cabinetAccessories.split(", ").filter { it in allOptions })
+            }
+        }
+    }
+
+    var showOtherField by remember {
+        mutableStateOf(cabinetAccessories.split(", ").any { it !in allOptions && it.isNotBlank() })
+    }
+
+    Text("Select Cabinet Accessories:", style = MaterialTheme.typography.titleMedium)
+
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        allOptions.forEach { option ->
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Checkbox(
+                    checked = selectedAccessories.contains(option),
+                    onCheckedChange = { checked ->
+                        if (checked) {
+                            selectedAccessories.add(option)
+                        } else {
+                            selectedAccessories.remove(option)
+                        }
+                        onCabinetAccessoriesChange(selectedAccessories.joinToString(", "))
+                    }
+                )
+                Text(option)
+            }
+        }
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Checkbox(
+                checked = showOtherField,
+                onCheckedChange = {
+                    showOtherField = it
+                    if (!it) {
+                        onCabinetAccessoriesOtherChange("")
+                    }
+                }
+            )
+            Text("Other")
+        }
+    }
+
+    if (showOtherField) {
         OutlinedTextField(
             value = cabinetAccessoriesOther,
-            onValueChange = onCabinetAccessoriesOtherChange,
-            label = { Text("Specify Accessories") },
+            onValueChange = {
+                onCabinetAccessoriesOtherChange(it)
+                val combined = if (selectedAccessories.isNotEmpty() && it.isNotBlank()) {
+                    selectedAccessories.joinToString(", ") + ", " + it
+                } else if (it.isNotBlank()) {
+                    it
+                } else {
+                    selectedAccessories.joinToString(", ")
+                }
+                onCabinetAccessoriesChange(combined)
+            },
+            label = { Text("Specify Other Accessories") },
             modifier = Modifier.fillMaxWidth(),
-            minLines = 3
+            minLines = 2
         )
     }
 
@@ -621,27 +699,6 @@ fun AccessoriesNotesStep(
     )
 }
 
-@Composable
-fun PhotosStep(
-    photosTakenOutside: Boolean, photosTakenInside: Boolean, photoOfCabinetSent: Boolean,
-    onPhotosTakenOutsideChange: (Boolean) -> Unit,
-    onPhotosTakenInsideChange: (Boolean) -> Unit,
-    onPhotoOfCabinetSentChange: (Boolean) -> Unit
-) {
-    Text("Photos Checklist", style = MaterialTheme.typography.headlineSmall)
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Checkbox(checked = photosTakenOutside, onCheckedChange = onPhotosTakenOutsideChange)
-        Text("Photos Taken Outside")
-    }
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Checkbox(checked = photosTakenInside, onCheckedChange = onPhotosTakenInsideChange)
-        Text("Photos Taken Inside")
-    }
-    Row(verticalAlignment = Alignment.CenterVertically) {
-        Checkbox(checked = photoOfCabinetSent, onCheckedChange = onPhotoOfCabinetSentChange)
-        Text("Photo of Cabinet Sent")
-    }
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -684,4 +741,145 @@ fun DropdownField(
             }
         }
     }
+}
+
+@Composable
+fun PhotosStep(
+    cabinetId: Long?,
+    photoViewModel: PhotoViewModel
+) {
+    Log.d("PhotosStep", "PhotosStep called with cabinetId: $cabinetId")
+    val context = LocalContext.current
+    val photos by photoViewModel.getPhotosByEntity(
+        cabinetId?.toInt() ?: -1,
+        "cabinet"
+    ).collectAsState(initial = emptyList())
+
+    var photoType by remember { mutableStateOf<String?>(null) }
+
+    val cameraLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.TakePicture()
+    ) { success ->
+        if (success && photoType != null) {
+            photoViewModel.tempPhotoUri?.let { uri ->
+                val photo = PhotoEntity(
+                    entityId = cabinetId?.toInt() ?: -1,
+                    entityType = photoType!!,
+                    uri = uri.toString(),
+                    createdAt = System.currentTimeMillis()
+                )
+                photoViewModel.insertPhoto(photo)
+            }
+            photoType = null
+        }
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        if (isGranted && photoType != null) {
+            val uri = createImageUri(context)
+            photoViewModel.tempPhotoUri = uri
+            cameraLauncher.launch(uri)
+        }
+    }
+
+    Text("Photos", style = MaterialTheme.typography.headlineSmall)
+
+    val outsidePhotos = photos.filter { it.entityType == "outside" }
+    val insidePhotos = photos.filter { it.entityType == "inside" }
+    val cabinetPhotos = photos.filter { it.entityType == "cabinet_photo" }
+
+    Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        PhotoSection(
+            title = "Photos Outside (${outsidePhotos.size})",
+            photos = outsidePhotos,
+            onTakePhoto = {
+                photoType = "outside"
+                permissionLauncher.launch(Manifest.permission.CAMERA)
+            },
+            onDeletePhoto = { photoViewModel.deletePhoto(it.id) }
+        )
+
+        PhotoSection(
+            title = "Photos Inside (${insidePhotos.size})",
+            photos = insidePhotos,
+            onTakePhoto = {
+                photoType = "inside"
+                permissionLauncher.launch(Manifest.permission.CAMERA)
+            },
+            onDeletePhoto = { photoViewModel.deletePhoto(it.id) }
+        )
+
+        PhotoSection(
+            title = "Photos of Cabinet (${cabinetPhotos.size})",
+            photos = cabinetPhotos,
+            onTakePhoto = {
+                photoType = "cabinet_photo"
+                permissionLauncher.launch(Manifest.permission.CAMERA)
+            },
+            onDeletePhoto = { photoViewModel.deletePhoto(it.id) }
+        )
+    }
+}
+
+@Composable
+fun PhotoSection(
+    title: String,
+    photos: List<PhotoEntity>,
+    onTakePhoto: () -> Unit,
+    onDeletePhoto: (PhotoEntity) -> Unit
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(title, style = MaterialTheme.typography.titleMedium)
+            Button(onClick = onTakePhoto) {
+                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(20.dp))
+                Text("Take Photo", modifier = Modifier.padding(start = 8.dp))
+            }
+        }
+
+        if (photos.isNotEmpty()) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                photos.forEach { photo ->
+                    Card(modifier = Modifier.size(100.dp)) {
+                        Box {
+                            AsyncImage(
+                                model = Uri.parse(photo.uri),
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop
+                            )
+                            IconButton(
+                                onClick = { onDeletePhoto(photo) },
+                                modifier = Modifier.align(Alignment.TopEnd)
+                            ) {
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = "Delete",
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+fun createImageUri(context: Context): Uri {
+    val imageFile = File(context.filesDir, "camera_photo_${System.currentTimeMillis()}.jpg")
+    return FileProvider.getUriForFile(
+        context,
+        "${context.packageName}.fileprovider",
+        imageFile
+    )
 }
