@@ -17,7 +17,7 @@ import androidx.room.PrimaryKey
 )
 data class Cabinet(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
-    val projectId: Long, // Links to Project
+    val projectId: Long,
     val voltage: String,
     val frequency: Double,
     val current: Double,
@@ -27,24 +27,24 @@ data class Cabinet(
     val ingressProtection: String,
     val mounting: String,
     val cabinetAccessories: String,
-    val cableEntryPosition: String, // Onder/Boven
+    val cableEntryPosition: String,
     val cableEntryType: String,
     val location: String,
     val finalComments: String,
-
-    // New fields from APP_BENODIGDHEDEN.txt
-    val width: Double, // breedte
-    val height: Double, // hoogte
-    val depth: Double, // diepte
-    val numberOfDoors: Int, // aantal deuren
-    val doorSwingDirection: String, // linksdraaiend, rechtdraaiend / positie slot
-    val intakeGrillePosition: String, // positie aanzuigrooster
-    val exhaustGrillePosition: String, // positie afblaasrooster
-    val freeSpaceRight: Double, // vrije ruimte rechts
-    val freeSpaceLeft: Double, // vrije ruimte links
-    val freeSpaceTop: Double, // vrije ruimte boven
-    val freeSpaceBottom: Double, // vrije ruimte onder
-    val photosTakenOutside: Boolean = false, // maak fotos buitenzijde
-    val photosTakenInside: Boolean = false, // maak fotos binnenzijde
-    val photoOfCabinetSent: Boolean = false // stuurt foto van kast
+    val width: Double,
+    val height: Double,
+    val depth: Double,
+    val numberOfDoors: Int,
+    val doorSwingDirection: String,
+    val intakeGrillePosition: String,
+    val exhaustGrillePosition: String,
+    val freeSpaceRight: Double,
+    val freeSpaceLeft: Double,
+    val freeSpaceTop: Double,
+    val freeSpaceBottom: Double,
+    val photosTakenOutside: Boolean = false,
+    val photosTakenInside: Boolean = false,
+    val photoOfCabinetSent: Boolean = false,
+    val createdAt: Long = System.currentTimeMillis(),
+    val updatedAt: Long = System.currentTimeMillis()
 )

@@ -1,22 +1,25 @@
 package eu.foxbms.installationchecklist.data.repository
 
+import eu.foxbms.installationchecklist.data.local.Cabinet
+import eu.foxbms.installationchecklist.data.local.CabinetDao
 import eu.foxbms.installationchecklist.data.local.FieldDeviceDao
 import eu.foxbms.installationchecklist.data.local.FieldDevice
 import kotlinx.coroutines.flow.Flow
 
-// TODO: Change these functions or delete them to conform to the new architecture
 class FieldDeviceRepository(private val fieldDeviceDao: FieldDeviceDao) {
-    fun getFieldDevicesByCabinetId(cabinetId: Int): Flow<List<FieldDevice>> =
-        fieldDeviceDao.getFieldDevicesByCabinetId(cabinetId)
+    suspend fun insertFieldDevice(fieldDevice: FieldDevice): Long {
+        return fieldDeviceDao.insert(fieldDevice)
+    }
 
-    fun getFieldDeviceById(id: Int): Flow<FieldDevice?> =
-        fieldDeviceDao.getFieldDeviceById(id)
+    suspend fun updateFieldDevice(fieldDevice: FieldDevice) {
+        fieldDeviceDao.update(fieldDevice)
+    }
 
-    suspend fun insertFieldDevice(fieldDevice: FieldDevice) =
-        fieldDeviceDao.insertFieldDevice(fieldDevice)
+    fun getFieldDevicesForCabinet(projectId: Long): Flow<List<FieldDevice>> {
+        return fieldDeviceDao.getFieldDevicesForCabinet(projectId)
+    }
 
-    suspend fun updateFieldDevice(fieldDevice: FieldDevice) =
-        fieldDeviceDao.updateFieldDevice(fieldDevice)
-
-    suspend fun deleteFieldDevice(id: Int) = fieldDeviceDao.deleteFieldDevice(id)
+    fun getFieldDevice(fieldDeviceId: Long): Flow<FieldDevice?> {
+        return fieldDeviceDao.getFieldDevice(fieldDeviceId)
+    }
 }

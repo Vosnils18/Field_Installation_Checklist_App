@@ -4,16 +4,20 @@ import eu.foxbms.installationchecklist.data.local.CabinetDao
 import eu.foxbms.installationchecklist.data.local.Cabinet
 import kotlinx.coroutines.flow.Flow
 
-// TODO: Change these functions or delete them to conform to the new architecture
 class CabinetRepository(private val cabinetDao: CabinetDao) {
-    fun getCabinetsByProjectId(projectId: Int): Flow<List<Cabinet>> =
-        cabinetDao.getCabinetsByProjectId(projectId)
+    suspend fun insertCabinet(cabinet: Cabinet): Long {
+        return cabinetDao.insert(cabinet)
+    }
 
-    fun getCabinetById(id: Int): Flow<Cabinet?> = cabinetDao.getCabinetById(id)
+    suspend fun updateCabinet(cabinet: Cabinet) {
+        cabinetDao.update(cabinet)
+    }
 
-    suspend fun insertCabinet(cabinet: Cabinet) = cabinetDao.insertCabinet(cabinet)
+    fun getCabinetsForProject(projectId: Long): Flow<List<Cabinet>> {
+        return cabinetDao.getCabinetsForProject(projectId)
+    }
 
-    suspend fun updateCabinet(cabinet: Cabinet) = cabinetDao.updateCabinet(cabinet)
-
-    suspend fun deleteCabinet(id: Int) = cabinetDao.deleteCabinet(id)
+    fun getCabinet(cabinetId: Long): Flow<Cabinet?> {
+        return cabinetDao.getCabinet(cabinetId)
+    }
 }

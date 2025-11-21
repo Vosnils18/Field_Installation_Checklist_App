@@ -17,4 +17,7 @@ interface FieldDeviceDao {
 
     @Query("SELECT * FROM field_devices WHERE cabinetId = :cabinetId")
     fun getFieldDevicesForCabinet(cabinetId: Long): Flow<List<FieldDevice>>
+
+    @Query("SELECT * FROM field_devices WHERE id = :fieldDeviceId")
+    fun getFieldDevice(fieldDeviceId: Long): Flow<FieldDevice?>
 }

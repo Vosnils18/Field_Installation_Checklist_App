@@ -7,12 +7,12 @@ plugins {
 
 android {
     namespace = "eu.foxbms.installationchecklist"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "eu.foxbms.installationchecklist"
         minSdk = 24
-        targetSdk = 34
+        targetSdk = 35
         versionCode = 1
         versionName = "1.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

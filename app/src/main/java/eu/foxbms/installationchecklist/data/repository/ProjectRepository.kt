@@ -6,13 +6,19 @@ import kotlinx.coroutines.flow.Flow
 
 // TODO: Change these functions or delete them to conform to the new architecture
 class ProjectRepository(private val projectDao: ProjectDao) {
-    fun getAllProjects(): Flow<List<Project>> = projectDao.getAllProjects()
+    suspend fun insertProject(project: Project): Long {
+        return projectDao.insert(project)
+    }
 
-    fun getProjectById(id: Int): Flow<Project?> = projectDao.getProjectById(id)
+    suspend fun updateProject(project: Project) {
+        projectDao.update(project)
+    }
 
-    suspend fun insertProject(project: Project) = projectDao.insertProject(project)
+    fun getAllProjects(): Flow<List<Project>> {
+        return projectDao.getAllProjects()
+    }
 
-    suspend fun updateProject(project: Project) = projectDao.updateProject(project)
-
-    suspend fun deleteProject(id: Int) = projectDao.deleteProject(id)
+    fun getProject(projectId: Long): Flow<Project?> {
+        return projectDao.getProject(projectId)
+    }
 }

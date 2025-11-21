@@ -17,4 +17,7 @@ interface CabinetDao {
 
     @Query("SELECT * FROM cabinets WHERE projectId = :projectId")
     fun getCabinetsForProject(projectId: Long): Flow<List<Cabinet>>
+
+    @Query("SELECT * FROM cabinets WHERE id = :cabinetId")
+    fun getCabinet(cabinetId: Long): Flow<Cabinet?>
 }

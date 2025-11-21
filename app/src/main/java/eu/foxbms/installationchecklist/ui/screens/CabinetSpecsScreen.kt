@@ -238,6 +238,10 @@ fun CabinetSpecsScreen(navController: NavController, projectId: Long, viewModel:
         // Save button
         Button(
             onClick = {
+                if (width.isBlank() || height.isBlank() || depth.isBlank()) {
+                    // TODO: Show error message
+                    return@Button
+                }
                 val cabinet = Cabinet(
                     projectId = projectId,
                     voltage = voltage,
