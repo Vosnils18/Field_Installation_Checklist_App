@@ -760,8 +760,10 @@ fun PhotosStep(
     val cameraLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicture()
     ) { success ->
+        Log.d("PhotosStep", "Camera result: success=$success, photoType=$photoType")
         if (success && photoType != null) {
             photoViewModel.tempPhotoUri?.let { uri ->
+                Log.d("PhotosStep", "Saving photo with URI: $uri")
                 val photo = PhotoEntity(
                     entityId = cabinetId?.toInt() ?: -1,
                     entityType = photoType!!,
@@ -777,8 +779,10 @@ fun PhotosStep(
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
+        Log.d("PhotosStep", "Permission result: isGranted=$isGranted, photoType=$photoType")
         if (isGranted && photoType != null) {
             val uri = createImageUri(context)
+            Log.d("PhotosStep", "Created URI: $uri")
             photoViewModel.tempPhotoUri = uri
             cameraLauncher.launch(uri)
         }
@@ -798,7 +802,8 @@ fun PhotosStep(
                 photoType = "outside"
                 permissionLauncher.launch(Manifest.permission.CAMERA)
             },
-            onDeletePhoto = { photoViewModel.deletePhoto(it.id) }
+            onDeletePhoto = { photoViewModel.deletePhoto(it.id) },
+            context = context
         )
 
         PhotoSection(
@@ -808,7 +813,8 @@ fun PhotosStep(
                 photoType = "inside"
                 permissionLauncher.launch(Manifest.permission.CAMERA)
             },
-            onDeletePhoto = { photoViewModel.deletePhoto(it.id) }
+            onDeletePhoto = { photoViewModel.deletePhoto(it.id) },
+            context = context
         )
 
         PhotoSection(
@@ -818,7 +824,8 @@ fun PhotosStep(
                 photoType = "cabinet_photo"
                 permissionLauncher.launch(Manifest.permission.CAMERA)
             },
-            onDeletePhoto = { photoViewModel.deletePhoto(it.id) }
+            onDeletePhoto = { photoViewModel.deletePhoto(it.id) },
+            context = context
         )
     }
 }
@@ -828,7 +835,8 @@ fun PhotoSection(
     title: String,
     photos: List<PhotoEntity>,
     onTakePhoto: () -> Unit,
-    onDeletePhoto: (PhotoEntity) -> Unit
+    onDeletePhoto: (PhotoEntity) -> Unit,
+    context: Context
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(
@@ -841,6 +849,12 @@ fun PhotoSection(
                 Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(20.dp))
                 Text("Take Photo", modifier = Modifier.padding(start = 8.dp))
             }
+//            Button(onClick = {
+//                Log.d("TEST", "BUTTON CLICKED!!!!")
+//                android.widget.Toast.makeText(context, "Button clicked!", android.widget.Toast.LENGTH_SHORT).show()
+//            }) {
+//                Text("TEST BUTTON")
+//            }
         }
 
         if (photos.isNotEmpty()) {
