@@ -63,6 +63,8 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import eu.foxbms.installationchecklist.data.local.Cabinet
 import eu.foxbms.installationchecklist.viewmodel.CabinetViewModel
+import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -110,6 +112,7 @@ fun CabinetSpecsScreen(
     var cabinetAccessories by remember { mutableStateOf("") }
     var cabinetAccessoriesOther by remember { mutableStateOf("") }
     var finalComments by remember { mutableStateOf("") }
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(cabinetId) {
         cabinetId?.let { id ->
@@ -235,53 +238,44 @@ fun CabinetSpecsScreen(
                     }
                 } else {
                     Button(onClick = {
-                        val finalVoltage = if (voltage == "Other") voltageOther else voltage
-                        val finalFrequency = if (frequency == "Other") frequencyOther else frequency
-                        val finalMaterial = if (material == "Other") materialOther else material
-                        val finalColour = if (colour == "Other") colourOther else colour
-                        val finalIngressProtection = if (ingressProtection == "Other") ingressProtectionOther else ingressProtection
-                        val finalSiteConditions = if (siteConditions == "Other") siteConditionsOther else siteConditions
-                        val finalMounting = if (mounting == "Other") mountingOther else mounting
-                        val finalCableEntryType = if (cableEntryType == "Other") cableEntryTypeOther
-                        else if (cableEntryType == "Cable Glands") "Cable Glands - $cableGlandMaterial"
-                        else cableEntryType
-                        val finalAccessories = if (cabinetAccessories == "Other") cabinetAccessoriesOther else cabinetAccessories
-
-                        val cabinet = Cabinet(
-                            projectId = projectId,
-                            voltage = finalVoltage,
-                            frequency = finalFrequency.replace(" Hz", "").toDoubleOrNull() ?: 0.0,
-                            current = current.toDoubleOrNull() ?: 0.0,
-                            siteConditions = finalSiteConditions,
-                            material = finalMaterial,
-                            colour = finalColour,
-                            ingressProtection = finalIngressProtection,
-                            mounting = finalMounting,
-                            cabinetAccessories = finalAccessories,
-                            cableEntryPosition = cableEntryPosition,
-                            cableEntryType = finalCableEntryType,
-                            location = location,
-                            finalComments = finalComments,
-                            width = width.toDoubleOrNull() ?: 0.0,
-                            height = height.toDoubleOrNull() ?: 0.0,
-                            depth = depth.toDoubleOrNull() ?: 0.0,
-                            numberOfDoors = numberOfDoors.toIntOrNull() ?: 0,
-                            doorSwingDirection = doorSwingDirection,
-                            intakeGrillePosition = intakeGrillePosition,
-                            exhaustGrillePosition = exhaustGrillePosition,
-                            freeSpaceRight = freeSpaceRight.toDoubleOrNull() ?: 0.0,
-                            freeSpaceLeft = freeSpaceLeft.toDoubleOrNull() ?: 0.0,
-                            freeSpaceTop = freeSpaceTop.toDoubleOrNull() ?: 0.0,
-                            freeSpaceBottom = freeSpaceBottom.toDoubleOrNull() ?: 0.0,
-                        )
                         if (cabinetId == null) {
-                            viewModel.insertCabinet(cabinet)
-                        } else {
-                            viewModel.updateCabinet(cabinet.copy(id = cabinetId))
+                            coroutineScope.launch {
+                                val cabinet = Cabinet(
+                                    projectId = projectId,
+                                    voltage = if (voltage == "Other") voltageOther else voltage,
+                                    frequency = (if (frequency == "Other") frequencyOther else frequency).replace(" Hz", "").toDoubleOrNull() ?: 0.0,
+                                    current = current.toDoubleOrNull() ?: 0.0,
+                                    siteConditions = if (siteConditions == "Other") siteConditionsOther else siteConditions,
+                                    material = if (material == "Other") materialOther else material,
+                                    colour = if (colour == "Other") colourOther else colour,
+                                    ingressProtection = if (ingressProtection == "Other") ingressProtectionOther else ingressProtection,
+                                    mounting = if (mounting == "Other") mountingOther else mounting,
+                                    cabinetAccessories = cabinetAccessories,
+                                    cableEntryPosition = cableEntryPosition,
+                                    cableEntryType = if (cableEntryType == "Other") cableEntryTypeOther else if (cableEntryType == "Cable Glands") "Cable Glands - $cableGlandMaterial" else cableEntryType,
+                                    location = location,
+                                    finalComments = finalComments,
+                                    width = width.toDoubleOrNull() ?: 0.0,
+                                    height = height.toDoubleOrNull() ?: 0.0,
+                                    depth = depth.toDoubleOrNull() ?: 0.0,
+                                    numberOfDoors = numberOfDoors.toIntOrNull() ?: 0,
+                                    doorSwingDirection = doorSwingDirection,
+                                    intakeGrillePosition = intakeGrillePosition,
+                                    exhaustGrillePosition = exhaustGrillePosition,
+                                    freeSpaceRight = freeSpaceRight.toDoubleOrNull() ?: 0.0,
+                                    freeSpaceLeft = freeSpaceLeft.toDoubleOrNull() ?: 0.0,
+                                    freeSpaceTop = freeSpaceTop.toDoubleOrNull() ?: 0.0,
+                                    freeSpaceBottom = freeSpaceBottom.toDoubleOrNull() ?: 0.0,
+                                )
+                                val newId = viewModel.insertCabinet(cabinet)
+                                navController.navigate("cabinet_specs/$projectId/$newId") {
+                                    popUpTo("cabinet_specs/$projectId/new") { inclusive = true }
+                                }
+                            }
                         }
-                        navController.popBackStack()
+                        currentStep++
                     }) {
-                        Text(if (cabinetId == null) "Save Cabinet" else "Update Cabinet")
+                        Text("Next")
                     }
                 }
             }
@@ -750,11 +744,9 @@ fun PhotosStep(
 ) {
     Log.d("PhotosStep", "PhotosStep called with cabinetId: $cabinetId")
     val context = LocalContext.current
-    val photos by photoViewModel.getPhotosByEntity(
-        cabinetId?.toInt() ?: -1,
-        "cabinet"
+    val photos by photoViewModel.getAllPhotosByEntityId(
+        cabinetId?.toInt() ?: -1
     ).collectAsState(initial = emptyList())
-
     var photoType by remember { mutableStateOf<String?>(null) }
 
     val cameraLauncher = rememberLauncherForActivityResult(

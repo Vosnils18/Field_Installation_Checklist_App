@@ -20,8 +20,8 @@ class CabinetViewModel @Inject constructor(
     fun getCabinet(cabinetId: Long): Flow<Cabinet?> =
         cabinetRepository.getCabinetById(cabinetId)
 
-    fun insertCabinet(cabinet: Cabinet) = viewModelScope.launch {
-        cabinetRepository.insertCabinet(cabinet)
+    suspend fun insertCabinet(cabinet: Cabinet): Long {
+        return cabinetRepository.insertCabinet(cabinet)
     }
 
     fun updateCabinet(cabinet: Cabinet) = viewModelScope.launch {

@@ -29,4 +29,7 @@ class PhotoViewModel @Inject constructor(
     fun deletePhoto(id: Int) = viewModelScope.launch {
         photoRepository.deletePhoto(id)
     }
+
+    fun getAllPhotosByEntityId(entityId: Int) =
+        photoRepository.getAllPhotosByEntityId(entityId)
 }

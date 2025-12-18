@@ -2,23 +2,26 @@ package eu.foxbms.installationchecklist.data.repository
 
 import eu.foxbms.installationchecklist.data.local.ProjectDao
 import eu.foxbms.installationchecklist.data.local.Project
+import eu.foxbms.installationchecklist.data.sync.SyncService
 import kotlinx.coroutines.flow.Flow
 
-// TODO: Change these functions or delete them to conform to the new architecture
-class ProjectRepository(private val projectDao: ProjectDao) {
+class ProjectRepository(
+    private val projectDao: ProjectDao,
+    private val syncService: SyncService
+) {
+    fun getAllProjects(): Flow<List<Project>> = projectDao.getAllProjects()
+
+    fun getProject(id: Long): Flow<Project?> = projectDao.getProject(id)
+
     suspend fun insertProject(project: Project): Long {
-        return projectDao.insert(project)
+        val id = projectDao.insert(project)
+        syncService.syncProject(project.copy(id = id))
+        return id
     }
 
     suspend fun updateProject(project: Project) {
         projectDao.update(project)
+        syncService.syncProject(project)
     }
 
-    fun getAllProjects(): Flow<List<Project>> {
-        return projectDao.getAllProjects()
-    }
-
-    fun getProject(projectId: Long): Flow<Project?> {
-        return projectDao.getProject(projectId)
-    }
 }

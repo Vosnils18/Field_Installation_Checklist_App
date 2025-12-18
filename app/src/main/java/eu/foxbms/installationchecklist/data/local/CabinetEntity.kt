@@ -42,9 +42,6 @@ data class Cabinet(
     val freeSpaceLeft: Double,
     val freeSpaceTop: Double,
     val freeSpaceBottom: Double,
-//    val photosTakenOutside: Boolean = false,
-//    val photosTakenInside: Boolean = false,
-//    val photoOfCabinetSent: Boolean = false,
     val createdAt: Long = System.currentTimeMillis(),
     val updatedAt: Long = System.currentTimeMillis()
 )

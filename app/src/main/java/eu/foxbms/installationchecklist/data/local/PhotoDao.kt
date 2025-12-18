@@ -15,4 +15,7 @@ interface PhotoDao {
 
     @Query("SELECT * FROM photos WHERE entityId = :entityId AND entityType = :entityType")
     fun getPhotosByEntity(entityId: Int, entityType: String): Flow<List<PhotoEntity>>
+
+    @Query("SELECT * FROM photos WHERE entityId = :entityId")
+    fun getAllPhotosByEntityId(entityId: Int): Flow<List<PhotoEntity>>
 }
